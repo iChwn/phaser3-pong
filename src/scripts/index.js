@@ -27,7 +27,7 @@ let player1;
 let player2;
 let isGameStarted = false;
 let cursors;
-const paddleSpeed = 500
+const paddleSpeed = 1000
 let keys = {};
 let playerVictoryText;
 let isNearP1 = false
@@ -48,7 +48,7 @@ function create() {
     "ball"
   )
   ball.setCollideWorldBounds(true);
-  ball.setBounce(1,1);
+  ball.setBounce(1.1,1);
 
   player1 = this.physics.add.sprite(
     this.physics.world.bounds.width - (ball.body.width / 2 + 1),
@@ -97,8 +97,11 @@ function update() {
     game.destroy()
   }
 
-  player1.body.setVelocityY(0)
-  player2.body.setVelocityY(0)
+  player1.body.setVelocityY(0)  
+  // player2.body.setVelocityY(0)
+
+  // player1.body.setVelocityY(ball.body.velocity.y)
+  player2.body.setVelocityY(ball.body.velocity.y)
 
   if(cursors.up.isDown) {
     player1.body.setVelocityY(-paddleSpeed)
@@ -112,8 +115,6 @@ function update() {
   if(keys.s.isDown) {
     player2.body.setVelocityY(paddleSpeed)
   }
-
-  // player2.body.setVelocityY(-ball.body.y)
 
   if(ball.body.x > player1.body.x - 50 && !isNearP1) {
     isNearP1 = true
