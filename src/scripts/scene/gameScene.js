@@ -5,13 +5,18 @@ let player2;
 let cursors;
 let keys = {};
 const paddleSpeed = 1000
+let player1Score;
+let player2Score;
+let gameSceneProp;
 
 const {difficulty, paddleConfig} = gameSetting
 
 const GameScene = new Phaser.Class({
   Extends: Phaser.Scene,
   initialize: function () {
+    gameSceneProp = this
     Phaser.Scene.call(this, { key: 'GameScene' });
+    console.log(this)
   },
   init: function (data) {
     console.log("INIT GAME SCENE")
@@ -23,6 +28,7 @@ const GameScene = new Phaser.Class({
     this.load.image('blue', './src/assets/images/blue.png');
   },
   create: function () {
+    pauseScreen("GameScene", gameSceneProp)
     ball = this.physics.add.sprite(
       this.physics.world.bounds.width / 2,
       this.physics.world.bounds.height / 2,
@@ -39,6 +45,9 @@ const GameScene = new Phaser.Class({
     player1.displayHeight = paddleConfig.paddleLength[gameSetting.difficulty]
     player1.setCollideWorldBounds(true);
     player1.setImmovable(true)
+
+    player1Score = this.add.text(this.physics.world.bounds.width - 130, 20, `Score P1: ${gameScore.player1}`);  
+    player2Score = this.add.text(20, 20, `Score P2: ${gameScore.player2}`);
   
     player2 = this.physics.add.sprite(
       ball.body.width / 2 + 1,
@@ -53,7 +62,6 @@ const GameScene = new Phaser.Class({
     keys.w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     keys.s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
   
-  
     this.physics.add.collider(ball, player1, colliderP1Callback, null, this)
     this.physics.add.collider(ball, player2, colliderP2Callback, null, this)
   },
@@ -67,16 +75,12 @@ const GameScene = new Phaser.Class({
     }
   
     if(ball.body.x > player1.body.x) {
-      ball.body.setVelocityX(0)
-      ball.body.setVelocityY(0)
+      gameScore.player2 = gameScore.player2 + 1
       setWinnerText(this, "Player 2 Win")
-      game.destroy()
     }
     if(ball.body.x < player2.body.x) {
-      ball.body.setVelocityX(0)
-      ball.body.setVelocityY(0)
+      gameScore.player1 = gameScore.player1 + 1     
       setWinnerText(this, "Player 1 Win")
-      game.destroy()
     }
   
     player1.body.setVelocityY(0)  
@@ -93,6 +97,9 @@ const GameScene = new Phaser.Class({
     }
     if(keys.w.isDown) {
       player2.body.setVelocityY(-paddleSpeed)
+    }
+    if(keys.s.isDown) {
+      player2.body.setVelocityY(paddleSpeed)
     }
     if(keys.s.isDown) {
       player2.body.setVelocityY(paddleSpeed)
@@ -115,9 +122,14 @@ function colliderP2Callback() {
   setParticle(this, ball, "blue")
 }
 
+function renderScore() {
+  player1Score.setText('Score P1: ' + gameScore.player1);
+  player2Score.setText('Score P2: ' + gameScore.player2);
+}
+
 function handleBallSpeed(ball, player) {
   const pSpeed = player === "p1" ? -paddleSpeed : paddleSpeed
-  const counterSpeed = player === "p1" ? -50 : 50
+  const counterSpeed = player === "p1" ? -70 : 70
   const logic = player === "p1" ? ">" : "<"
   const isValid = eval(ball.body.velocity.x + logic + pSpeed);
 
@@ -130,13 +142,13 @@ function handleBallSpeed(ball, player) {
 
 let emitter;
 let particles;
-function setParticle(param, element, color) {
+function setParticle(self, element, color) {
   if(emitter) {
     emitter.stop()
     // particles.destroy()
   }
 
-  particles = param.add.particles(color);
+  particles = self.add.particles(color);
   emitter = particles.createEmitter({
     speed: 50,
     scale: { start: 1, end: 0 },
@@ -147,17 +159,45 @@ function setParticle(param, element, color) {
   //   return 1 - 2 * Math.abs(t - 0.5);
   // });
 
-  param.time.delayedCall(1000, function() {
+  self.time.delayedCall(1000, function() {
     emitter.stop()
   });
 }
 
-function setWinnerText(param, victoryText) {
-  let data = param
-  playerVictoryTex = data.add.text(
+function setWinnerText(self, victoryText) {
+  let data = self
+  isGameStarted = false
+  ball.body.setVelocityX(0)
+  ball.body.setVelocityY(0)
+  renderScore() 
+  
+  let playerVictoryTex = data.add.text(
     data.physics.world.bounds.width / 2,
     data.physics.world.bounds.height / 2,
     victoryText
   )
   playerVictoryTex.setOrigin(.5);
+  
+  pauseScreen("pause")
+  gameSceneProp.scene.launch('RetryScene');
+
+
+  // let retry = data.add.text(
+  //   data.physics.world.bounds.width / 2,
+  //   data.physics.world.bounds.height / 1.6,
+  //   "Retry?"
+  // )
+  // retry.setOrigin(.5);
+
+  // let mainMenu = data.add.text(
+  //   data.physics.world.bounds.width / 2,
+  //   data.physics.world.bounds.height / 1.4,
+  //   "Main Menu"
+  // )
+  // mainMenu.setInteractive().on('pointerdown', function() {
+  //   console.log(data)
+  //   data.scene.scene.start('MenuScene');
+  // });
+  // mainMenu.setOrigin(.5);
+
 }

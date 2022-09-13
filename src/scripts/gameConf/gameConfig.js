@@ -1,5 +1,5 @@
 const gameSetting = {
-  difficulty: "cupu",
+  difficulty: "promax",
   paddleConfig: {
     paddleLength: {
       cupu: 200,

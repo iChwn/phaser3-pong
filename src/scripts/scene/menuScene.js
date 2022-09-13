@@ -1,4 +1,4 @@
-var MenuScene = new Phaser.Class({
+const MenuScene = new Phaser.Class({
 
   //The scene is noted.
   Extends: Phaser.Scene,
@@ -9,11 +9,16 @@ var MenuScene = new Phaser.Class({
       //preload media for MenuScene here
   },
   create: function () {
-      var gs = this.add.text(500,500, 'masih develop');
-      var txt1 = this.add.text(400,100, 'Select Difficulty');
+      let txt1 = this.add.text(
+        this.physics.world.bounds.width / 2,
+        this.physics.world.bounds.height / 4,
+        'Select Difficulty');
       txt1.setOrigin(.5);
 
-      var dif1 = this.add.text(400,300, 'Cupu');
+      let dif1 = this.add.text(
+        this.physics.world.bounds.width / 2,
+        this.physics.world.bounds.height / 3, 
+      'Cupu');
       dif1.setInteractive().on('pointerdown', function() {
         gameSetting.difficulty = "cupu"
         this.scene.scene.start('GameScene');
@@ -21,7 +26,10 @@ var MenuScene = new Phaser.Class({
       });
       dif1.setOrigin(.5);
 
-      var dif2 = this.add.text(400,350, 'Ultra Pro X Max Nmax');
+      let dif2 = this.add.text(
+        this.physics.world.bounds.width / 2,
+        this.physics.world.bounds.height / 2.6, 
+        'Ultra Pro X Max');
       dif2.setInteractive().on('pointerdown', function() {
         gameSetting.difficulty = "promax"
         this.scene.scene.start('GameScene');
